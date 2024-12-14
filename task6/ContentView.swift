@@ -8,36 +8,36 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var isInDiagonal = false
+    @State private var isDiagonal = false
 
     var body: some View {
-        SquaresLayout(isInDiagonal: isInDiagonal) {
+        SquaresLayout(isDiagonal: isDiagonal) {
             ForEach(0 ..< 7) { _ in
                 RoundedRectangle(cornerRadius: 10).fill(.blue)
             }
         }
-        .onTapGesture { withAnimation(.spring) { isInDiagonal.toggle() } }
+        .onTapGesture { withAnimation(.spring) { isDiagonal.toggle() } }
     }
 }
 
 struct SquaresLayout: Layout {
-    let isInDiagonal: Bool
+    let isDiagonal: Bool
     let spacing = 10.0
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: LayoutSubviews, cache _: inout ()) -> CGSize {
-        isInDiagonal ? proposal.replacingUnspecifiedDimensions() : .init(width: proposal.width ?? 0, height: (proposal.width ?? 0) / CGFloat(subviews.count))
+        isDiagonal ? proposal.replacingUnspecifiedDimensions() : .init(width: proposal.width ?? 0, height: (proposal.width ?? 0) / CGFloat(subviews.count))
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: LayoutSubviews, cache _: inout ()) {
         let count = CGFloat(subviews.count)
-        let squareSize = isInDiagonal ? bounds.height / count : (bounds.width - spacing * (count - 1)) / count
+        let size = isDiagonal ? bounds.height / count : (bounds.width - spacing * (count - 1)) / count
 
         for (index, view) in subviews.enumerated() {
             let i = CGFloat(index)
-            let x = isInDiagonal ? i * (bounds.width - squareSize) / (count - 1) : i * (squareSize + spacing)
-            let y = isInDiagonal ? bounds.maxY - (i * (bounds.height - squareSize) / (count - 1) + squareSize) : bounds.midY - squareSize / 2
+            let x = isDiagonal ? i * (bounds.width - size) / (count - 1) : i * (size + spacing)
+            let y = isDiagonal ? bounds.maxY - (i * (bounds.height - size) / (count - 1) + size) : bounds.midY - size / 2
 
-            view.place(at: .init(x: x, y: y), proposal: .init(width: squareSize, height: squareSize))
+            view.place(at: .init(x: x, y: y), proposal: .init(width: size, height: size))
         }
     }
 }
