@@ -9,31 +9,35 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var isInDiagonal = false
-    private let squares = 7
 
     var body: some View {
-        GeometryReader { geo in
-            let size = isInDiagonal ?
-                geo.size.height / CGFloat(squares) :
-                (geo.size.width - 10 * CGFloat(squares - 1)) / CGFloat(squares)
-            let step = CGPoint(
-                x: (geo.size.width - size) / CGFloat(squares - 1),
-                y: (geo.size.height - size) / CGFloat(squares - 1)
-            )
-
-            ZStack {
-                ForEach(0 ..< squares, id: \.self) { i in
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(.blue)
-                        .frame(width: size, height: size)
-                        .position(
-                            x: isInDiagonal ? step.x * CGFloat(i) + size / 2 : (size + 10) * CGFloat(i) + size / 2,
-                            y: isInDiagonal ? geo.size.height - (step.y * CGFloat(i) + size / 2) : geo.size.height / 2
-                        )
-                }
+        SquaresLayout(isInDiagonal: isInDiagonal) {
+            ForEach(0 ..< 7) { _ in
+                RoundedRectangle(cornerRadius: 10).fill(.blue)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onTapGesture { withAnimation(.spring) { isInDiagonal.toggle() } }
+        }
+        .onTapGesture { withAnimation(.spring) { isInDiagonal.toggle() } }
+    }
+}
+
+struct SquaresLayout: Layout {
+    let isInDiagonal: Bool
+    let spacing = 10.0
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: LayoutSubviews, cache _: inout ()) -> CGSize {
+        isInDiagonal ? proposal.replacingUnspecifiedDimensions() : .init(width: proposal.width ?? 0, height: (proposal.width ?? 0) / CGFloat(subviews.count))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: LayoutSubviews, cache _: inout ()) {
+        let count = CGFloat(subviews.count)
+        let squareSize = isInDiagonal ? bounds.height / count : (bounds.width - spacing * (count - 1)) / count
+
+        for (index, view) in subviews.enumerated() {
+            let i = CGFloat(index)
+            let x = isInDiagonal ? i * (bounds.width - squareSize) / (count - 1) : i * (squareSize + spacing)
+            let y = isInDiagonal ? bounds.maxY - (i * (bounds.height - squareSize) / (count - 1) + squareSize) : bounds.midY - squareSize / 2
+
+            view.place(at: .init(x: x, y: y), proposal: .init(width: squareSize, height: squareSize))
         }
     }
 }
