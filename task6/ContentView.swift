@@ -9,41 +9,37 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var isInDiagonal = false
-    let numberOfSquares = 7
-
+    let squares = 7
+    
     var body: some View {
-        GeometryReader { geometry in
-            let availableWidth = geometry.size.width
-            let availableHeight = geometry.size.height
-
-            let horizontalSquareSize = availableWidth / CGFloat(numberOfSquares)
-            let diagonalSquareSize = availableHeight / CGFloat(numberOfSquares)
-            let squareSize = isInDiagonal ? diagonalSquareSize : horizontalSquareSize
-
-            let diagonalStepX = (availableWidth - squareSize) / CGFloat(numberOfSquares - 1)
-            let diagonalStepY = (availableHeight - squareSize) / CGFloat(numberOfSquares - 1)
-
-            ZStack(alignment: .leading) {
-                ForEach(0 ..< numberOfSquares, id: \.self) { index in
+        GeometryReader { geo in
+            let size = isInDiagonal ?
+                geo.size.height / CGFloat(squares) :
+                geo.size.width / CGFloat(squares)
+            
+            let step = CGPoint(
+                x: (geo.size.width - size) / CGFloat(squares - 1),
+                y: (geo.size.height - size) / CGFloat(squares - 1)
+            )
+            
+            ZStack {
+                ForEach(0..<squares, id: \.self) { i in
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.blue)
-                        .frame(width: squareSize, height: squareSize)
+                        .fill(.blue)
+                        .frame(width: size, height: size)
                         .position(
-                            x: isInDiagonal
-                                ? diagonalStepX * CGFloat(index) + squareSize / 2
-                                : horizontalSquareSize * CGFloat(index) + squareSize / 2,
-                            y: isInDiagonal
-                                ? availableHeight - (diagonalStepY * CGFloat(index) + squareSize / 2)
-                                : availableHeight / 2
+                            x: isInDiagonal ?
+                                step.x * CGFloat(i) + size/2 :
+                                size * CGFloat(i) + size/2,
+                            y: isInDiagonal ?
+                                geo.size.height - (step.y * CGFloat(i) + size/2) :
+                                geo.size.height/2
                         )
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle())
             .onTapGesture {
-                withAnimation(.spring) {
-                    isInDiagonal.toggle()
-                }
+                withAnimation(.spring) { isInDiagonal.toggle() }
             }
         }
     }
