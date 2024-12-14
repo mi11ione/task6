@@ -9,38 +9,31 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var isInDiagonal = false
-    let squares = 7
-    
+    private let squares = 7
+
     var body: some View {
         GeometryReader { geo in
             let size = isInDiagonal ?
                 geo.size.height / CGFloat(squares) :
-                geo.size.width / CGFloat(squares)
-            
+                (geo.size.width - 10 * CGFloat(squares - 1)) / CGFloat(squares)
             let step = CGPoint(
                 x: (geo.size.width - size) / CGFloat(squares - 1),
                 y: (geo.size.height - size) / CGFloat(squares - 1)
             )
-            
+
             ZStack {
-                ForEach(0..<squares, id: \.self) { i in
-                    RoundedRectangle(cornerRadius: 20)
+                ForEach(0 ..< squares, id: \.self) { i in
+                    RoundedRectangle(cornerRadius: 10)
                         .fill(.blue)
                         .frame(width: size, height: size)
                         .position(
-                            x: isInDiagonal ?
-                                step.x * CGFloat(i) + size/2 :
-                                size * CGFloat(i) + size/2,
-                            y: isInDiagonal ?
-                                geo.size.height - (step.y * CGFloat(i) + size/2) :
-                                geo.size.height/2
+                            x: isInDiagonal ? step.x * CGFloat(i) + size / 2 : (size + 10) * CGFloat(i) + size / 2,
+                            y: isInDiagonal ? geo.size.height - (step.y * CGFloat(i) + size / 2) : geo.size.height / 2
                         )
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onTapGesture {
-                withAnimation(.spring) { isInDiagonal.toggle() }
-            }
+            .onTapGesture { withAnimation(.spring) { isInDiagonal.toggle() } }
         }
     }
 }
